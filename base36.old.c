@@ -4,20 +4,11 @@
 
 PG_MODULE_MAGIC;
 
-PG_FUNCTION_INFO_V1(base36_in);
+PG_FUNCTION_INFO_V1(base36_encode);
 Datum
-base36_in(PG_FUNCTION_ARGS)
+base36_encode(PG_FUNCTION_ARGS)
 {
-  long result;
-  char *str = PG_GETARG_CSTRING(0);
-  result = strtol(str, NULL, 36);
-  PG_RETURN_INT32((int32)result);
-}
-
-PG_FUNCTION_INFO_V1(base36_out);
-Datum
-base36_out(PG_FUNCTION_ARGS) {
-
+  elog(INFO, "testing debugging now %d", 999);
   int32 arg = PG_GETARG_INT32(0);
   if (arg < 0) {
     ereport(ERROR,
@@ -31,7 +22,7 @@ base36_out(PG_FUNCTION_ARGS) {
   }
   char base36[36] = "0123456789abcdefghijklmnopqrstuvwxyz";
 
-  char buffer[7];
+  char *buffer = palloc(7 * sizeof(char));
   unsigned int offset = sizeof(buffer);
   buffer[--offset] = '\0';
 
@@ -39,5 +30,5 @@ base36_out(PG_FUNCTION_ARGS) {
     buffer[--offset] = base36[arg % 36];
   } while (arg /= 36);
 
-  PG_RETURN_CSTRING(pstrdup(&buffer[offset]));
+  PG_RETURN_TEXT_P(cstring_to_text(&buffer[offset]));
 }
